@@ -151,10 +151,13 @@ export default function ProfilePage() {
               )}
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900">
+              <h2 className="text-base sm:text-lg font-bold text-red-700">
+                {"Hello,"}
+              </h2>
+              <h2 className="text-base sm:text-lg font-bold text-green-500">
                 {user?.name || "ব্যবহারকারী"}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              <p className="text-xs sm:text-sm text-pink-700 font-medium">
                 {user?.email || "ইমেইল পাওয়া যায়নি"}
               </p>
             </div>

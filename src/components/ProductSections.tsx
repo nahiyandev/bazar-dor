@@ -1,5 +1,6 @@
 import React from "react";
-import ProductCard, { Product, toBnNumber } from "./ProductCard";
+import ProductCard, { Product } from "./ProductCard";
+import AllProductsList from "./AllProductsList";
 
 export default async function ProductSections() {
   let products: Product[] = [];
@@ -15,7 +16,7 @@ export default async function ProductSections() {
     console.error("Failed to load products for sections:", err);
   }
 
-  // ১. আজ দাম বেড়েছে (Top 6 risers, sorted by % descending)
+  // ১. আজ দাম বেড়েছে (Top 6 risers, sorted by % descending)
   const topRisers = products
     .filter((p) => p.change?.dir === "up")
     .sort((a, b) => (b.change?.pct || 0) - (a.change?.pct || 0))
@@ -29,13 +30,13 @@ export default async function ProductSections() {
 
   return (
     <div className="space-y-12 sm:space-y-16">
-      {/* 🔴 Section A: আজ দাম বেড়েছে (Top 6 Risers) */}
+      {/* 🔴 Section A: আজ দাম বেড়েছে (Top 6 Risers) */}
       {topRisers.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-4 sm:mb-5">
             <span className="text-red-600 text-sm sm:text-base font-black">▲</span>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-              আজ দাম বেড়েছে
+              আজ দাম বেড়েছে
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4">
@@ -63,24 +64,8 @@ export default async function ProductSections() {
         </section>
       )}
 
-      {/* 🧺 Section C: সব পণ্য (All Products Grid) */}
-      <section id="all-products" className="scroll-mt-6">
-        <div className="mb-4 sm:mb-5">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-            সব পণ্য
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-            মোট {toBnNumber(products.length)}টি পণ্য দেখানো হচ্ছে
-          </p>
-        </div>
-
-        {/* রেসপনসিভ গ্রিড: মোবাইল ১ কলাম, ট্যাবলেট ২ কলাম, বড় স্ক্রিনে ৩-৪ কলাম */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3.5 sm:gap-4">
-          {products.map((product) => (
-            <ProductCard key={`all-${product.id}`} product={product} />
-          ))}
-        </div>
-      </section>
+      {/* 🧺 Section C: সব পণ্য (সাজান ড্রপডাউন ও নিউমেরিক সর্টিং সহ) */}
+      <AllProductsList initialProducts={products} />
     </div>
   );
 }
