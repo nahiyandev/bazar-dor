@@ -3,66 +3,52 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import { toast } from "react-toastify";
 
-export default function SignUpPage() {
+export default function SignInPage() {
   const router = useRouter();
-  const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [image, setImage] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!name.trim() || !email.trim() || !password) {
-      toast.error("সবগুলো প্রয়োজনীয় ঘর পূরণ করুন");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("উভয় পাসওয়ার্ড এক হতে হবে");
-      return;
-    }
-
-    if (password.length < 8) {
-      toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
+    if (!email.trim() || !password) {
+      toast.error("অনুগ্রহ করে ইমেইল ও পাসওয়ার্ড প্রদান করুন");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await signUp.email({
-        name: name.trim(),
+      const res = await signIn.email({
         email: email.trim(),
         password,
-        image: image.trim() || undefined,
       });
 
       if (res.error) {
-        toast.error(res.error.message || "রেজিস্ট্রেশন সম্পন্ন করা যায়নি");
+        toast.error(res.error.message || "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়");
       } else {
-        toast.success("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! অনুগ্রহ করে সাইন ইন করুন।");
-        router.push("/signin");
+        toast.success("সফলভাবে লগইন হয়েছে! স্বাগতম।");
+        router.push("/");
+        router.refresh();
       }
     } catch {
-      toast.error("সার্ভার সমস্যা, কিছুক্ষণ পর আবার চেষ্টা করুন");
+      toast.error("লগইন করতে সমস্যা হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[85vh] bg-[#f4f7f4] flex flex-col items-center justify-center px-4 py-10">
+    <div className="min-h-[85vh] bg-[#f4f7f4] flex flex-col items-center justify-center px-4 py-12">
       <div className="text-center mb-6">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          অ্যাকাউন্ট তৈরি করুন
+          সাইন ইন
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-medium">
-          বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।
+          বিস্তারিত দাম, বাজার তুলনা ও প্রোফাইল দেখতে অ্যাকাউন্টে ঢুকুন।
         </p>
       </div>
 
@@ -70,21 +56,7 @@ export default function SignUpPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              নাম <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="যেমন: রহিম উদ্দিন"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              ইমেইল <span className="text-red-500">*</span>
+              ইমেইল
             </label>
             <input
               type="email"
@@ -98,20 +70,7 @@ export default function SignUpPage() {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              প্রোফাইল ছবির লিংক (Image URL - ঐচ্ছিক)
-            </label>
-            <input
-              type="url"
-              placeholder="https://example.com/avatar.jpg"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              পাসওয়ার্ড <span className="text-red-500">*</span>
+              পাসওয়ার্ড
             </label>
             <input
               type="password"
@@ -123,33 +82,19 @@ export default function SignUpPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              পাসওয়ার্ড নিশ্চিত করুন <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              placeholder="আবার লিখুন"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
-              required
-            />
-          </div>
-
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-[#0e8a44] hover:bg-[#0b6f36] text-white font-bold py-2.5 rounded-xl shadow-xs transition-colors flex items-center justify-center text-sm disabled:opacity-60 cursor-pointer"
           >
-            {loading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট তৈরি করুন"}
+            {loading ? "সাইন ইন হচ্ছে..." : "সাইন ইন"}
           </button>
         </form>
 
         <p className="text-center text-xs text-slate-600 font-medium mt-6">
-          অ্যাকাউন্ট আছে?{" "}
-          <Link href="/signin" className="text-[#0e8a44] font-bold hover:underline">
-            সাইন ইন করুন
+          অ্যাকাউন্ট নেই?{" "}
+          <Link href="/signup" className="text-[#0e8a44] font-bold hover:underline">
+            সাইন আপ করুন
           </Link>
         </p>
       </div>
