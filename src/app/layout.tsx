@@ -3,6 +3,7 @@ import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/ToastProvider";
+import Footer from "@/components/Footer";
 
 const hindSiliguri = Hind_Siliguri({
   weight: ["400", "500", "600", "700"],
@@ -26,8 +27,8 @@ export default function RootLayout({
       <body className={`${hindSiliguri.className} antialiased bg-[#f8faf8] text-slate-800`}>
         <Navbar />
         {children}
-        {/* আলাদা ক্লায়েন্ট প্রোভাইডার */}
         <ToastProvider />
+        <Footer />
       </body>
     </html>
   );

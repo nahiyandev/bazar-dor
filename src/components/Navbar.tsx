@@ -27,7 +27,7 @@ const NavbarContent = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [todayBanglaDate, setTodayBanglaDate] = useState<string>("বুধবার, ৭ অক্টোবর, ২০২৬");
+  const [todayBanglaDate, setTodayBanglaDate] = useState<string>("বৃহস্পতিবার, ৮ অক্টোবর, ২০২৬");
 
   // ১. আজকের বাংলা তারিখ নির্ধারণ
   useEffect(() => {
@@ -82,12 +82,15 @@ const NavbarContent = () => {
     }
   };
 
+  const user = session?.user;
+  const userInitials = (user?.name || "U").slice(0, 2).toUpperCase();
+
   return (
     <header className="w-full bg-[#f8faf8] border-b border-slate-200">
       {/* ১. শীর্ষ বার: লোগো ও Auth বাটন / প্রোফাইল ড্রপডাউন */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-[#0e8a44] flex items-center justify-center text-white text-2xl shadow-xs">
+          <div className="w-11 h-11 rounded-xl bg-[#0e8a44] flex items-center justify-center text-white text-2xl shadow-xs shrink-0">
             🛒
           </div>
           <div>
@@ -102,40 +105,45 @@ const NavbarContent = () => {
 
         {/* Auth কন্ট্রোল */}
         <div className="relative" ref={dropdownRef}>
-          {session?.user ? (
+          {user ? (
             <div>
               <button
                 type="button"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+                className="flex items-center gap-2 p-1.5 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <div className="w-9 h-9 rounded-xl bg-slate-200 overflow-hidden relative border border-slate-300 flex items-center justify-center">
-                  {session.user.image ? (
+                {/* ফিক্সড সাইজ অ্যাভাটার কনটেইনার */}
+                <div className="w-9 h-9 min-w-9 max-w-9 rounded-full bg-slate-200 overflow-hidden relative border border-slate-300 flex items-center justify-center shrink-0">
+                  {user.image ? (
                     <Image
-                      src={session.user.image}
-                      alt={session.user.name || "User"}
-                      fill
-                      className="object-cover"
+                      src={user.image}
+                      alt={user.name || "User"}
+                      width={36}
+                      height={36}
+                      unoptimized
+                      className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <span>👤</span>
+                    <span className="text-xs font-bold text-slate-700">
+                      {userInitials}
+                    </span>
                   )}
                 </div>
                 <span className="text-sm font-bold text-slate-800 hidden sm:inline-block">
-                  {session.user.name?.split(" ")[0]}
+                  {user.name?.split(" ")[0]}
                 </span>
                 <span className="text-xs text-slate-500">▾</span>
               </button>
 
               {/* ড্রপডাউন মেনু */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200/90 rounded-2xl shadow-lg p-3 z-50 text-left">
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200/90 rounded-2xl shadow-xl p-3 z-50 text-left">
                   <div className="px-2 py-1.5 border-b border-slate-100 mb-2">
                     <p className="text-sm font-bold text-slate-800 leading-snug">
-                      {session.user.name}
+                      {user.name}
                     </p>
                     <p className="text-xs text-slate-500 truncate">
-                      {session.user.email}
+                      {user.email}
                     </p>
                   </div>
 
@@ -213,7 +221,7 @@ const NavbarContent = () => {
         </div>
       </nav>
 
-      {/* ৩. চলমান প্রাইস টিকার */}
+      {/* ৩. প্রাইস টিকার */}
       <Marquee />
     </header>
   );
