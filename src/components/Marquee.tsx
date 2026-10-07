@@ -31,7 +31,7 @@ export default function Marquee() {
 
   return (
     <div className="w-full bg-[#f8faf8] border-y border-slate-200 py-1.5 overflow-hidden">
-      <FastMarquee pauseOnHover={true} speed={40} gradient={false}>
+      <FastMarquee pauseOnHover={true} speed={100} gradient={false}>
         <div className="flex items-center gap-3 pr-3">
           {products.map((item) => {
             const isUp = item.change?.dir === "up";
