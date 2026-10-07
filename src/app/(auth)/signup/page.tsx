@@ -3,37 +3,35 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/auth-client";
+import { signUp, signIn } from "@/lib/auth-client";
 import { toast } from "react-toastify";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [image, setImage] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [image, setImage] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
+  // ইমেইল রেজিস্ট্রেশন
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!name.trim() || !email.trim() || !password) {
-      toast.error("সবগুলো প্রয়োজনীয় ঘর পূরণ করুন");
-      return;
-    }
-
     if (password !== confirmPassword) {
-      toast.error("উভয় পাসওয়ার্ড এক হতে হবে");
+      toast.error("দুই পাসওয়ার্ডের মিল নেই");
       return;
     }
 
-    if (password.length < 8) {
-      toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
+    if (password.length < 6) {
+      toast.error("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে");
       return;
     }
 
     setLoading(true);
+
     try {
       const res = await signUp.email({
         name: name.trim(),
@@ -43,10 +41,11 @@ export default function SignUpPage() {
       });
 
       if (res.error) {
-        toast.error(res.error.message || "রেজিস্ট্রেশন সম্পন্ন করা যায়নি");
+        toast.error(res.error.message || "রেজিস্ট্রেশন সম্পন্ন করা যায়নি");
       } else {
-        toast.success("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! অনুগ্রহ করে সাইন ইন করুন।");
-        router.push("/signin");
+        toast.success("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!");
+        router.push("/profile");
+        router.refresh();
       }
     } catch {
       toast.error("সার্ভার সমস্যা, কিছুক্ষণ পর আবার চেষ্টা করুন");
@@ -55,111 +54,158 @@ export default function SignUpPage() {
     }
   };
 
-  return (
-    <div className="min-h-[85vh] bg-[#f4f7f4] flex flex-col items-center justify-center px-4 py-10">
-      <div className="text-center mb-6">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          অ্যাকাউন্ট তৈরি করুন
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-medium">
-          বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।
-        </p>
-      </div>
+  // Google ও GitHub দিয়ে সাইন আপ/লগইন
+  const handleSocialLogin = async (provider: "google" | "github") => {
+    try {
+      setSocialLoading(provider);
+      await signIn.social({
+        provider,
+        callbackURL: "/profile",
+      });
+    } catch {
+      toast.error(
+        `${provider === "google" ? "গুগল" : "গিটহাব"} দিয়ে অ্যাকাউন্ট খোলা সম্ভব হয়নি`
+      );
+    } finally {
+      setSocialLoading(null);
+    }
+  };
 
-      <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-2xs">
-        <form onSubmit={handleSubmit} className="space-y-4">
+  return (
+    <div className="min-h-[85vh] bg-[#f8faf8] flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-sm space-y-6">
+        <div className="text-center space-y-1.5">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            অ্যাকাউন্ট তৈরি করুন
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">
+            বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।
+          </p>
+        </div>
+
+        {/* সোশাল লগইন বাটনসমূহ */}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            disabled={!!socialLoading || loading}
+            onClick={() => handleSocialLogin("google")}
+            className="flex items-center justify-center gap-2 py-2.5 px-4 border border-slate-200 hover:bg-slate-50 rounded-xl text-xs sm:text-sm font-bold text-slate-700 transition-colors cursor-pointer disabled:opacity-60"
+          >
+            <span>🌐</span> {socialLoading === "google" ? "অপেক্ষা..." : "Google"}
+          </button>
+          <button
+            type="button"
+            disabled={!!socialLoading || loading}
+            onClick={() => handleSocialLogin("github")}
+            className="flex items-center justify-center gap-2 py-2.5 px-4 border border-slate-200 hover:bg-slate-50 rounded-xl text-xs sm:text-sm font-bold text-slate-700 transition-colors cursor-pointer disabled:opacity-60"
+          >
+            <span>🐙</span> {socialLoading === "github" ? "অপেক্ষা..." : "GitHub"}
+          </button>
+        </div>
+
+        {/* ডিভাইডার */}
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-3 text-slate-400 font-semibold">অথবা</span>
+          </div>
+        </div>
+
+        {/* রেজিস্ট্রেশন ফর্ম */}
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              নাম <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold text-slate-600 mb-1">
+              নাম *
             </label>
             <input
               type="text"
-              placeholder="যেমন: রহিম উদ্দিন"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
+              placeholder="আপনার পূর্ণ নাম"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#0e8a44]"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              ইমেইল <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold text-slate-600 mb-1">
+              ইমেইল *
             </label>
             <input
               type="email"
-              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
+              placeholder="name@example.com"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#0e8a44]"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              প্রোফাইল ছবির লিংক (Image URL - ঐচ্ছিক)
+            <label className="block text-xs font-bold text-slate-600 mb-1">
+              প্রোফাইল ছবির লিংক (ঐচ্ছিক)
             </label>
             <input
               type="url"
-              placeholder="https://example.com/avatar.jpg"
               value={image}
               onChange={(e) => setImage(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
+              placeholder="https://example.com/avatar.jpg"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#0e8a44]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              পাসওয়ার্ড <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold text-slate-600 mb-1">
+              পাসওয়ার্ড *
             </label>
             <input
               type="password"
-              placeholder="কমপক্ষে ৮ অক্ষর"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
+              placeholder="কমপক্ষে ৬ অক্ষরের"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#0e8a44]"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              পাসওয়ার্ড নিশ্চিত করুন <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold text-slate-600 mb-1">
+              পাসওয়ার্ড নিশ্চিত করুন *
             </label>
             <input
               type="password"
-              placeholder="আবার লিখুন"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0e8a44]/20 focus:border-[#0e8a44] transition-all"
+              placeholder="একই পাসওয়ার্ড পুনরায় লিখুন"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#0e8a44]"
               required
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-[#0e8a44] hover:bg-[#0b6f36] text-white font-bold py-2.5 rounded-xl shadow-xs transition-colors flex items-center justify-center text-sm disabled:opacity-60 cursor-pointer"
+            disabled={loading || !!socialLoading}
+            className="w-full bg-[#0e8a44] hover:bg-[#0b6f36] text-white font-bold py-3 rounded-xl shadow-xs transition-colors text-sm cursor-pointer disabled:opacity-60 mt-2"
           >
             {loading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট তৈরি করুন"}
           </button>
         </form>
 
-        <p className="text-center text-xs text-slate-600 font-medium mt-6">
+        <div className="text-center text-xs font-medium text-slate-500 pt-1">
           অ্যাকাউন্ট আছে?{" "}
           <Link href="/signin" className="text-[#0e8a44] font-bold hover:underline">
             সাইন ইন করুন
           </Link>
-        </p>
-      </div>
+        </div>
 
-      <Link
-        href="/"
-        className="text-xs text-slate-500 hover:text-slate-800 transition-colors mt-6 font-medium"
-      >
-        ← হোম পেজে ফিরে যান
-      </Link>
+        <div className="text-center">
+          <Link href="/" className="text-xs text-slate-400 hover:text-slate-600">
+            ← হোম পেজে ফিরে যান
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
