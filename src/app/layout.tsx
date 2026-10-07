@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import ToastProvider from "@/components/ToastProvider";
 
-// গুগল থেকে Hind Siliguri ফন্ট লোড করা
 const hindSiliguri = Hind_Siliguri({
   weight: ["400", "500", "600", "700"],
   subsets: ["bengali", "latin"],
@@ -26,6 +26,8 @@ export default function RootLayout({
       <body className={`${hindSiliguri.className} antialiased bg-[#f8faf8] text-slate-800`}>
         <Navbar />
         {children}
+        {/* আলাদা ক্লায়েন্ট প্রোভাইডার */}
+        <ToastProvider />
       </body>
     </html>
   );
