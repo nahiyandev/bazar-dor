@@ -28,7 +28,7 @@ export default function Hero() {
         {/* বাম দিকের টেক্সট কনটেন্ট */}
         <div className="w-full md:w-3/5 space-y-3 sm:space-y-4 text-left">
           
-          {/* Eyebrow / ব্যাজ */}\
+          {/* Eyebrow / ব্যাজ */}
           <div className="inline-flex items-center gap-1.5 bg-[#eaf7ee] text-[#0e8a44] text-xs sm:text-sm font-semibold px-3 py-1 rounded-full min-h-7">
           
             <span>📅</span>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import Marquee from "@/components/Marquee";
 
 interface Category {
@@ -13,18 +13,32 @@ interface Category {
 }
 
 const NavbarContent = () => {
-  const searchParams = useSearchParams();
-  const currentCategory = searchParams.get("category") || "all";
+  const pathname = usePathname();
+  const params = useParams();
+  
+  // ক্যাটাগরি পেজে থাকলে slug ধরবে, হোমে থাকলে 'all'
+  const currentSlug = params?.slug as string | undefined;
+  const isHomePage = pathname === "/";
+
   const [categories, setCategories] = useState<Category[]>([]);
+  const [todayBanglaDate, setTodayBanglaDate] = useState<string>("বুধবার, ৭ অক্টোবর, ২০২৬");
 
-  // আজকের বাংলা তারিখ
-  const todayBanglaDate = new Intl.DateTimeFormat("bn-BD", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
+  // ১. তারিখ সেট করা (Next.js 16 SSR/Prerender নিরাপদ রাখার জন্য)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const formatted = new Intl.DateTimeFormat("bn-BD", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date());
+      setTodayBanglaDate(formatted);
+    }, 0);
 
+    return () => clearTimeout(timer);
+  }, []);
+
+  // ২. ক্যাটাগরি ডাটা ফেচ করা
   useEffect(() => {
     fetch("https://api.api-store.workers.dev/api/bazardor/categories")
       .then((res) => res.json())
@@ -73,10 +87,11 @@ const NavbarContent = () => {
       {/* ২. ক্যাটাগরি বাটনসমূহ */}
       <nav className="border-t border-slate-200 bg-white overflow-x-auto scrollbar-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 py-2">
+          {/* সব পণ্য লিংক (হোম পেজ) */}
           <Link
             href="/"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm whitespace-nowrap transition-colors ${
-              currentCategory === "all"
+              isHomePage && !currentSlug
                 ? "bg-[#0e8a44]/10 text-[#0e8a44] font-bold border border-[#0e8a44]/20"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium"
             }`}
@@ -85,12 +100,13 @@ const NavbarContent = () => {
             <span>সব পণ্য</span>
           </Link>
 
+          {/* ডাইনামিক ক্যাটাগরি লিংকসমূহ */}
           {categories.map((cat) => {
-            const isActive = currentCategory === cat.slug;
+            const isActive = currentSlug === cat.slug;
             return (
               <Link
                 key={cat.id}
-                href={`/?category=${cat.slug}`}
+                href={`/category/${cat.slug}`}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm whitespace-nowrap transition-colors ${
                   isActive
                     ? "bg-[#0e8a44]/10 text-[#0e8a44] font-bold border border-[#0e8a44]/20"
