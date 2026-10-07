@@ -1,14 +1,25 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
 export default function Hero() {
-  // সার্ভার কম্পোনেন্টে new Date() চালানো পুরোপুরি বৈধ এবং কোনো বিল্ড এরর হয় না
-  const banglaDate = new Intl.DateTimeFormat("bn-BD", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
+  const [banglaDate, setBanglaDate] = useState("");
+
+  useEffect(() => {
+    // শুধুমাত্র ক্লায়েন্ট সাইড ব্রাউজারে মাউন্ট হওয়ার পর বর্তমান তারিখ রেন্ডার হবে
+    const timer = setTimeout(() => {
+      const formatted = new Intl.DateTimeFormat("bn-BD", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date());
+      setBanglaDate(formatted);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
@@ -17,10 +28,11 @@ export default function Hero() {
         {/* বাম দিকের টেক্সট কনটেন্ট */}
         <div className="w-full md:w-3/5 space-y-3 sm:space-y-4 text-left">
           
-          {/* Eyebrow / ব্যাজ */}
-          <div className="inline-flex items-center gap-1.5 bg-[#eaf7ee] text-[#0e8a44] text-xs sm:text-sm font-semibold px-3 py-1 rounded-full">
+          {/* Eyebrow / ব্যাজ */}\
+          <div className="inline-flex items-center gap-1.5 bg-[#eaf7ee] text-[#0e8a44] text-xs sm:text-sm font-semibold px-3 py-1 rounded-full min-h-7">
+          
             <span>📅</span>
-            <span>{banglaDate}</span>
+            <span>{banglaDate || "বুধবার, ৭ অক্টোবর, ২০২৬"}</span>
           </div>
 
           {/* Main heading */}
@@ -33,7 +45,7 @@ export default function Hero() {
             চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার দাম — বাজারভিত্তিক বিস্তারিত, গড়, সর্বনিম্ন-সর্বোচ্চ এবং দামের পরিবর্তন এক জায়গায়।
           </p>
 
-          {/* CTA বাটন (খাঁটি Anchor Tag: কোনো JS/হাইড্রেসন এরর ছাড়াই সরাসরি #all-products এ যাবে) */}
+          {/* CTA বাটন */}
           <div className="pt-1">
             <a
               href="#all-products"
@@ -44,7 +56,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* ডান দিকের ইমেজ */}
+        {/* ডান দিকের হিরো ইমেজ */}
         <div className="w-full md:w-2/5 flex justify-center md:justify-end">
           <div className="relative w-44 h-40 sm:w-56 sm:h-48 lg:w-64 lg:h-52">
             <Image
