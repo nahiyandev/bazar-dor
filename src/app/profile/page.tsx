@@ -19,7 +19,7 @@ export default function ProfilePage() {
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const [imageError, setImageError] = useState<boolean>(false);
 
-  // ইউজার অথেনটিকেশন চেক (লগআউট করার সময় যাতে ওয়ার্নিং টোস্ট না ওঠে)
+  // ইউজার অথেনটিকেশন চেক (লগআউট চলাকালীন ডুপ্লিকেট ওয়ার্নিং টোস্ট বন্ধ থাকবে)
   useEffect(() => {
     if (!isPending && !session?.user && !isLoggingOut) {
       toast.warn("প্রোফাইল দেখার জন্য অনুগ্রহ করে প্রথমে সাইন ইন করুন");
@@ -27,15 +27,7 @@ export default function ProfilePage() {
     }
   }, [session, isPending, router, isLoggingOut]);
 
-  // সেশনের ডাটা ইনিশিয়ালাইজ করা
-  useEffect(() => {
-    if (session?.user) {
-      if (session.user.name) setName(session.user.name);
-      if (session.user.image) setImage(session.user.image);
-    }
-  }, [session]);
-
-  // ১. কেবল একটি মাত্র সাকসেস টোস্ট দিয়ে সাইন আউট
+  // সাইন আউট হ্যান্ডলার (একক সাকসেস টোস্ট)
   const handleSignOut = async () => {
     setIsLoggingOut(true);
     try {
@@ -49,10 +41,12 @@ export default function ProfilePage() {
     }
   };
 
-  // ২. নাম আপডেট হ্যান্ডলার
+  // নাম আপডেট হ্যান্ডলার
   const handleUpdateName = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const trimmedName = name.trim();
+    const targetName = name !== "" ? name : session?.user?.name || "";
+    const trimmedName = targetName.trim();
+
     if (!trimmedName) {
       toast.error("নামের ঘর খালি রাখা যাবে না");
       return;
@@ -68,6 +62,7 @@ export default function ProfilePage() {
         toast.error(res.error.message || "নাম আপডেট করতে ব্যর্থ হয়েছে");
       } else {
         toast.success("নাম সফলভাবে আপডেট করা হয়েছে!");
+        setName("");
         router.refresh();
       }
     } catch {
@@ -77,10 +72,12 @@ export default function ProfilePage() {
     }
   };
 
-  // ৩. প্রোফাইল ছবি আপডেট হ্যান্ডলার
+  // প্রোফাইল ছবি আপডেট হ্যান্ডলার
   const handleUpdateImage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const trimmedImage = image.trim();
+    const targetImage = image !== "" ? image : session?.user?.image || "";
+    const trimmedImage = targetImage.trim();
+
     if (!trimmedImage) {
       toast.error("ছবির লিঙ্ক খালি রাখা যাবে না");
       return;
@@ -97,6 +94,7 @@ export default function ProfilePage() {
         toast.error(res.error.message || "ছবি আপডেট করতে ব্যর্থ হয়েছে");
       } else {
         toast.success("প্রোফাইল ছবি সফলভাবে আপডেট হয়েছে!");
+        setImage("");
         router.refresh();
       }
     } catch {
@@ -119,6 +117,9 @@ export default function ProfilePage() {
 
   const user = session?.user;
   const userInitials = (user?.name || "U").slice(0, 2).toUpperCase();
+
+  const currentInputValue = name !== "" ? name : user?.name || "";
+  const currentImageInputValue = image !== "" ? image : user?.image || "";
 
   return (
     <div className="min-h-[85vh] bg-[#f4f7f4] py-10 px-4">
@@ -198,7 +199,7 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          {/* ১. নাম পরিবর্তন ফর্ম (টগলে একটিভ থাকলে শো করবে) */}
+          {/* ১. নাম পরিবর্তন ফর্ম */}
           {activeTab === "name" && (
             <form onSubmit={handleUpdateName} className="space-y-4 pt-1">
               <div>
@@ -207,7 +208,7 @@ export default function ProfilePage() {
                 </label>
                 <input
                   type="text"
-                  value={name}
+                  value={currentInputValue}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="আপনার নাম লিখুন"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#0e8a44]"
@@ -225,16 +226,16 @@ export default function ProfilePage() {
             </form>
           )}
 
-          {/* ২. ছবি পরিবর্তন ফর্ম (টগলে একটিভ থাকলে শো করবে) */}
+          {/* ২. ছবি পরিবর্তন ফর্ম */}
           {activeTab === "image" && (
             <form onSubmit={handleUpdateImage} className="space-y-4 pt-1">
               <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1.5">
-                  প্রোফাইল ছবির সরাসরি লিঙ্ক (Image URL)
+                  প্রোফাইল ছবির লিঙ্ক (Direct Image URL)
                 </label>
                 <input
                   type="url"
-                  value={image}
+                  value={currentImageInputValue}
                   onChange={(e) => setImage(e.target.value)}
                   placeholder="https://example.com/avatar.jpg"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#0e8a44]"
