@@ -71,7 +71,7 @@ export default function AllProductsList({ initialProducts }: AllProductsListProp
           </p>
         </div>
 
-        {/* সাজান (Sort) ড্রপডাউন with Chevron Icon */}
+        {/*  Sort ড্রপডাউন with Chevron Icon */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <label htmlFor="sort-dropdown" className="text-xs sm:text-sm font-semibold text-slate-600">
             সাজান:

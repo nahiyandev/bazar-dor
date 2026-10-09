@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   const [banglaDate, setBanglaDate] = useState("");
@@ -47,12 +48,12 @@ export default function Hero() {
 
           {/* CTA বাটন */}
           <div className="pt-1">
-            <a
+            <Link
               href="#all-products"
               className="inline-flex items-center justify-center bg-[#0e8a44] hover:bg-[#0b6f36] text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-lg shadow-xs hover:shadow transition-all duration-200"
             >
               সব পণ্য দেখুন
-            </a>
+            </Link>
           </div>
         </div>
 

@@ -5,13 +5,20 @@ import clientPromise from "@/lib/db";
 const client = await clientPromise;
 const db = client.db("bazardor");
 
+// প্রোডাকশন বা লোকাল URL ঠিকঠাক পাওয়ার ব্যবস্থা
+const getBaseUrl = () => {
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
+};
+
 export const auth = betterAuth({
   database: mongodbAdapter(db, {
     client,
   }),
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: getBaseUrl(),
   secret: process.env.BETTER_AUTH_SECRET,
-  // ইমেইল ও পাসওয়ার্ড চালু করতে এই অংশটি আবশ্যক
   emailAndPassword: {
     enabled: true,
   },
