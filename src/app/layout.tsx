@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/ToastProvider";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import GlobalLoader from "@/components/GlobalLoader";
 
 const hindSiliguri = Hind_Siliguri({
   weight: ["400", "500", "600", "700"],
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={`${hindSiliguri.className} antialiased bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200`}
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <GlobalLoader />
           <Navbar />
           {children}
           <Footer />
