@@ -358,14 +358,19 @@ async function ProductContent({ params }: PageProps) {
                         <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">
                           {bazarName}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">{division}</td>
-                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-medium">
+                        <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
+                          {division}
+                        </td>
+                        {/* 🟢 ১. সর্বনিম্ন কলাম (সবুজ) */}
+                        <td className="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">
                           {toBn(itemMin)} টাকা
                         </td>
-                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-medium">
+                        {/* 🔴 ২. সর্বাধিক কলাম (লাল) */}
+                        <td className="py-3.5 px-4 font-bold text-red-600 dark:text-red-400">
                           {toBn(itemMax)} টাকা
                         </td>
-                        <td className="py-3.5 px-4 text-right font-bold text-slate-900 dark:text-white">
+                        {/* 🎯 ৩. গড় কলাম */}
+                        <td className="py-3.5 px-4 text-right font-black text-slate-900 dark:text-white">
                           {toBn(itemAvg)} টাকা
                         </td>
                       </tr>
