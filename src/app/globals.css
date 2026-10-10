@@ -5,3 +5,106 @@
 html {
   scroll-behavior: smooth;
 }
+
+body {
+  font-family: var(--font-hind-siliguri), sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* =========================================================
+   🌙 ডার্ক মোড: বডি ও সব পেজের ব্যাকগ্রাউন্ড ফিক্স (একবারে সমাধান)
+   ========================================================= */
+html.dark,
+html.dark body,
+html.dark main,
+html.dark [class*="min-h-"],
+html.dark [class*="bg-[#f8faf8]"],
+html.dark [class*="bg-[#f4f7f4]"],
+html.dark [class*="bg-slate-50"],
+html.dark [class*="bg-gray-50"] {
+  background-color: #0b1120 !important;
+  background-image: none !important;
+  color: #f8fafc !important;
+}
+
+/* সাদা কার্ড, ডিটেইলস কার্ড ও টেবিল ডার্ক করা */
+html.dark .bg-white,
+html.dark table,
+html.dark [class*="rounded-2xl"][class*="border"],
+html.dark [class*="rounded-3xl"][class*="border"] {
+  background-color: #111827 !important;
+  border-color: #1f2937 !important;
+}
+
+/* টেবিল রো ও ডিভাইডার */
+html.dark tr,
+html.dark th,
+html.dark td {
+  border-color: #1f2937 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ইনপুট, টেক্সটএরিয়া ও সিলেক্ট ড্রপডাউন */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* =========================================================
+   🔤 ডার্ক মোড: টেক্সট কালার
+   ========================================================= */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #ffffff !important;
+}
+
+html.dark p {
+  color: #cbd5e1 !important;
+}
+
+html.dark [class*="text-slate-9"],
+html.dark [class*="text-slate-8"],
+html.dark [class*="text-slate-7"],
+html.dark [class*="text-gray-9"],
+html.dark [class*="text-gray-8"],
+html.dark [class*="text-gray-7"],
+html.dark .text-black {
+  color: #f8fafc !important;
+}
+
+html.dark .text-\[\#0e8a44\] {
+  color: #22c55e !important;
+}
+
+/* =========================================================
+   🏷️ ডার্ক মোড: মারকুই ও স্ট্যাটাস ব্যাজ
+   ========================================================= */
+html.dark [class*="Marquee"],
+html.dark marquee,
+html.dark .marquee-item,
+html.dark [class*="marquee"] {
+  background-color: #0b1120 !important;
+}
+
+html.dark [class*="marquee"] div,
+html.dark [class*="marquee"] p {
+  color: #f1f5f9 !important;
+}
+
+html.dark [class*="marquee"] .border,
+html.dark [class*="marquee"] [class*="border-"] {
+  border-color: #1e293b !important;
+  background-color: #111827 !important;
+}
