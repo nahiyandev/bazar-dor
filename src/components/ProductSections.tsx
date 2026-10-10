@@ -2,19 +2,42 @@ import React from "react";
 import ProductCard, { Product } from "./ProductCard";
 import AllProductsList from "./AllProductsList";
 
-export default async function ProductSections() {
-  let products: Product[] = [];
+const PRIMARY_API = "https://api.api-store.workers.dev/api/bazardor/products";
+const FALLBACK_API = "https://api.abcz.workers.dev/api/bazardor/products";
 
+
+async function fetchProducts(): Promise<Product[]> {
   try {
-    const res = await fetch("https://api.api-store.workers.dev/api/bazardor/products", {
+    // ১. প্রথমে প্রাইমারি এপিআই চেষ্টা করবে
+    const res = await fetch(PRIMARY_API, {
       next: { revalidate: 60 },
     });
     if (res.ok) {
-      products = await res.json();
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) return data;
     }
   } catch (err) {
-    console.error("Failed to load products for sections:", err);
+    console.warn("Primary API failed, trying fallback API:", err);
   }
+
+  try {
+    // ২. প্রাইমারি কাজ না করলে অটোমেটিক ব্যাকআপ এপিআই কল করবে
+    const fallbackRes = await fetch(FALLBACK_API, {
+      next: { revalidate: 60 },
+    });
+    if (fallbackRes.ok) {
+      const data = await fallbackRes.json();
+      if (Array.isArray(data)) return data;
+    }
+  } catch (err) {
+    console.error("Fallback API also failed:", err);
+  }
+
+  return [];
+}
+
+export default async function ProductSections() {
+  const products = await fetchProducts();
 
   // ১. আজ দাম বেড়েছে (Top 6 risers, sorted by % descending)
   const topRisers = products
@@ -34,8 +57,8 @@ export default async function ProductSections() {
       {topRisers.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-4 sm:mb-5">
-            <span className="text-red-600 text-sm sm:text-base font-black">▲</span>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+            <span className="text-red-600 dark:text-red-400 text-sm sm:text-base font-black">▲</span>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               আজ দাম বেড়েছে
             </h2>
           </div>
@@ -51,8 +74,8 @@ export default async function ProductSections() {
       {topFallers.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-4 sm:mb-5">
-            <span className="text-emerald-600 text-sm sm:text-base font-black">▼</span>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+            <span className="text-emerald-600 dark:text-emerald-400 text-sm sm:text-base font-black">▼</span>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               আজ দাম কমেছে
             </h2>
           </div>
