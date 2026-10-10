@@ -7,6 +7,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
 import { toast } from "react-toastify";
 import Marquee from "@/components/Marquee";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface Category {
   id: string;
@@ -27,7 +28,7 @@ const NavbarContent = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [todayBanglaDate, setTodayBanglaDate] = useState<string>("বৃহস্পতিবার, ৮ অক্টোবর, ২০২৬");
+  const [todayBanglaDate, setTodayBanglaDate] = useState<string>("শনিবার, ১০ অক্টোবর, ২০২৬");
 
   // ১. আজকের বাংলা তারিখ নির্ধারণ
   useEffect(() => {
@@ -78,7 +79,7 @@ const NavbarContent = () => {
       router.push("/");
       router.refresh();
     } catch {
-      toast.error("সাইন আউট সম্পন্ন করা যায়নি");
+      toast.error("সাইন আউট সম্পন্ন করা যায়নি");
     }
   };
 
@@ -86,106 +87,114 @@ const NavbarContent = () => {
   const userInitials = (user?.name || "U").slice(0, 2).toUpperCase();
 
   return (
-    <header className="w-full bg-[#f8faf8] border-b border-slate-200">
-      {/* ১. শীর্ষ বার: লোগো ও Auth বাটন / প্রোফাইল ড্রপডাউন */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-[#0e8a44] flex items-center justify-center text-white text-2xl shadow-xs shrink-0">
+    // 🌟 sticky top-0 এবং backdrop-blur দিয়ে নেভবার ফিক্সড করা হয়েছে
+    <header className="sticky top-0 z-50 w-full bg-[#f8faf8]/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800 shadow-xs transition-colors duration-200">
+      {/* ১. শীর্ষ বার: লোগো, গর্জিয়াস তারিখ ও Auth কন্ট্রোলস */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-11 h-11 rounded-2xl bg-linear-to-br from-[#0e8a44] to-emerald-600 flex items-center justify-center text-white text-2xl shadow-sm shadow-emerald-700/20 group-hover:scale-105 transition-transform shrink-0">
             🛒
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">
+          <div className="flex flex-col">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none group-hover:text-[#0e8a44] dark:group-hover:text-emerald-400 transition-colors">
               বাজার দর
             </h1>
-            <p className="text-xs text-slate-500 font-medium mt-1">
-              {todayBanglaDate}
-            </p>
+            {/* 🗓️ গর্জিয়াস ও স্পষ্ট তারিখ ব্যাজ */}
+            <div className="inline-flex items-center gap-1.5 mt-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 whitespace-nowrap shrink-0 shadow-2xs">
+              <span className="text-[11px] leading-none">🗓️</span>
+                <span className="text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 tracking-normal whitespace-nowrap">
+                {todayBanglaDate}
+              </span>
+            </div>
           </div>
         </Link>
 
-        {/* Auth কন্ট্রোল */}
-        <div className="relative" ref={dropdownRef}>
-          {user ? (
-            <div>
-              <button
-                type="button"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                {/* ফিক্সড সাইজ অ্যাভাটার কনটেইনার */}
-                <div className="w-9 h-9 min-w-9 max-w-9 rounded-full bg-slate-200 overflow-hidden relative border border-slate-300 flex items-center justify-center shrink-0">
-                  {user.image ? (
-                    <Image
-                      src={user.image}
-                      alt={user.name || "User"}
-                      width={36}
-                      height={36}
-                      unoptimized
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <span className="text-xs font-bold text-slate-700">
-                      {userInitials}
-                    </span>
-                  )}
-                </div>
-                <span className="text-sm font-bold text-slate-800 hidden sm:inline-block">
-                  {user.name?.split(" ")[0]}
-                </span>
-                <span className="text-xs text-slate-500">▾</span>
-              </button>
+        {/* Auth কন্ট্রোল ও ThemeToggle */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
 
-              {/* ড্রপডাউন মেনু */}
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200/90 rounded-2xl shadow-xl p-3 z-50 text-left">
-                  <div className="px-2 py-1.5 border-b border-slate-100 mb-2">
-                    <p className="text-sm font-bold text-slate-800 leading-snug">
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-slate-500 truncate">
-                      {user.email}
-                    </p>
+          <div className="relative" ref={dropdownRef}>
+            {user ? (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  <div className="w-9 h-9 min-w-9 max-w-9 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden relative border border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0">
+                    {user.image ? (
+                      <Image
+                        src={user.image}
+                        alt={user.name || "User"}
+                        width={36}
+                        height={36}
+                        unoptimized
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                        {userInitials}
+                      </span>
+                    )}
                   </div>
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200 hidden sm:inline-block">
+                    {user.name?.split(" ")[0]}
+                  </span>
+                  <span className="text-xs text-slate-500">▾</span>
+                </button>
 
-                  <Link
-                    href="/profile"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2 px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
-                  >
-                    <span>👤</span> আমার প্রোফাইল
-                  </Link>
+                {/* ড্রপডাউন মেনু */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-2xl shadow-xl p-3 z-50 text-left">
+                    <div className="px-2 py-1.5 border-b border-slate-100 dark:border-slate-700/60 mb-2">
+                      <p className="text-sm font-bold text-slate-800 dark:text-white leading-snug">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        {user.email}
+                      </p>
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-2.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer text-left"
-                  >
-                    <span>↩</span> সাইন আউট
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Link
-                href="/signin"
-                className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0e8a44] px-3 py-1.5 transition-colors"
-              >
-                সাইন ইন
-              </Link>
-              <Link
-                href="/signup"
-                className="text-xs sm:text-sm font-semibold bg-[#0e8a44] hover:bg-[#0b6f36] text-white px-3.5 py-1.5 rounded-lg transition-colors shadow-xs"
-              >
-                সাইন আপ
-              </Link>
-            </div>
-          )}
+                    <Link
+                      href="/profile"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2 px-2.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-xl transition-colors"
+                    >
+                      <span>👤</span> আমার প্রোফাইল
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-2.5 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors cursor-pointer text-left"
+                    >
+                      <span>↩</span> সাইন আউট
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Link
+                  href="/signin"
+                  className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-[#0e8a44] px-3 py-1.5 transition-colors"
+                >
+                  সাইন ইন
+                </Link>
+                <Link
+                  href="/signup"
+                  className="text-xs sm:text-sm font-semibold bg-[#0e8a44] hover:bg-[#0b6f36] text-white px-3.5 py-1.5 rounded-lg transition-colors shadow-xs"
+                >
+                  সাইন আপ
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ২. ক্যাটাগরি তালিকা */}
-      <nav className="border-t border-slate-200 bg-white overflow-x-auto scrollbar-none">
+      <nav className="border-t border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md overflow-x-auto scrollbar-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 py-2">
           {/* হোম পেজ লিংক */}
           <Link
@@ -193,7 +202,7 @@ const NavbarContent = () => {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm whitespace-nowrap transition-colors ${
               isHomePage && !currentSlug
                 ? "bg-[#0e8a44]/10 text-[#0e8a44] font-bold border border-[#0e8a44]/20"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium"
             }`}
           >
             <span>🧺</span>
@@ -210,7 +219,7 @@ const NavbarContent = () => {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm whitespace-nowrap transition-colors ${
                   isActive
                     ? "bg-[#0e8a44]/10 text-[#0e8a44] font-bold border border-[#0e8a44]/20"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium"
+                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium"
                 }`}
               >
                 <span>{cat.icon}</span>
@@ -231,7 +240,7 @@ export default function Navbar() {
   return (
     <Suspense
       fallback={
-        <header className="w-full bg-[#f8faf8] border-b border-slate-200 h-28 animate-pulse" />
+        <header className="sticky top-0 z-50 w-full bg-[#f8faf8] dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-28 animate-pulse" />
       }
     >
       <NavbarContent />

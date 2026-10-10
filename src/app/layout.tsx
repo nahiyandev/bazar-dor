@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/ToastProvider";
 import Footer from "@/components/Footer";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const hindSiliguri = Hind_Siliguri({
   weight: ["400", "500", "600", "700"],
@@ -23,12 +24,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="bn" className={hindSiliguri.variable}>
-      <body className={`${hindSiliguri.className} antialiased bg-[#f8faf8] text-slate-800`}>
-        <Navbar />
-        {children}
-        <ToastProvider />
-        <Footer />
+    <html lang="bn" className={hindSiliguri.variable} suppressHydrationWarning>
+      <body
+        className={`${hindSiliguri.className} antialiased bg-[#f8faf8] dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200`}
+      >
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <Navbar />
+          {children}
+          <Footer />
+          <ToastProvider />
+        </ThemeProvider>
       </body>
     </html>
   );
